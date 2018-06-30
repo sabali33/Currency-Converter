@@ -1,0 +1,44 @@
+{
+  "name": "currency-converter",
+  "version": "1.0.0",
+  "description": "An app to convert currency both online and offline",
+  "main": "app.js",
+  "scripts": {
+    "start:dev": "webpack-dev-server",
+    "dev": "lite-server",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sabali33/Currency-Converter.git"
+  },
+  "keywords": [
+    "Currency",
+    "converter"
+  ],
+  "author": "Eliasu Abraman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sabali33/Currency-Converter/issues"
+  },
+  "homepage": "https://github.com/sabali33/Currency-Converter#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.5",
+    "babel-loader": "^7.1.4",
+    "babel-preset-es2015": "^6.24.1",
+    "babelify": "^8.0.0",
+    "es6-promise": "^4.2.4",
+    "gulp": "^4.0.0",
+    "gulp-babel": "^7.0.1",
+    "lite-server": "^2.4.0",
+    "webpack": "^4.12.2",
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.1.4"
+  },
+  "dependencies": {
+    "https-post": "^0.1.1",
+    "idb": "^2.1.3",
+    "jquery": "^3.3.1"
+  }
+}

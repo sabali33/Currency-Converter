@@ -1,0 +1,30 @@
+body{
+    background: #efefef;
+}
+h1{
+    font-size: 24px;
+    color: #000000;
+}
+.wrap{
+    max-width: 960px;
+    margin: 0 auto;
+}
+header{
+    padding: 50px 0;
+    background: limegreen;
+}
+.form-list{
+    list-style: none;
+}
+input, select {
+    height: 40px;
+    margin-left: 30px;
+    padding-left: 20px;
+}
+li.item {
+    margin: 30px 0;
+}
+input#submit {
+    width: 150px;
+    margin: 50px;
+}
