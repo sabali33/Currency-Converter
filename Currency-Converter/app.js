@@ -205,9 +205,9 @@ const controller = {
         });
     },
     formTemplate(){
-        return this.getOptions().then(options=>{
-            
-            return form.data.replace(/OPTION/g, options );
+        return this.getOptions().then( options =>{
+            //console.log(options);
+            return form.data.replace(/#CHOICES/g, options );
         })
        
     },
@@ -216,7 +216,7 @@ const controller = {
         
         
        options = this.openDatabase().get().then(res =>{
-            let data = '';
+            let data = ``;
             if(!res.length){
                 this.getCurrencies().then(dataRes =>{
                     for( let currency of dataRes ){
@@ -225,6 +225,7 @@ const controller = {
                         data += `<option value="${currency.id}">${currency.currencyName} ${sym}</option>`;
                     
                     }
+                    
                     this.openDatabase().set(dataRes);
                 });
                 
@@ -258,6 +259,7 @@ const controller = {
         let formContainer = $('.currency-converter-container'); //document.getElementsByClassName('currency-converter-container');
         
         this.formTemplate().then(form =>{
+            //console.log(form);
             formContainer.html( form );//appendChild(form);
             this.getFormValues();
            

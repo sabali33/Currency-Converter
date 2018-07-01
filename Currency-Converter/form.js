@@ -6,7 +6,7 @@ export default  {
                             <label for="from-field"><input type="number" id="from-field" min ="1" value="1"/></label>
                             <span>
                                 <select name="from-currency-name" id="from-currency-name" class="select-currency">
-                                    OPTION
+                                    #CHOICES
                                 </select>
                             </span>
                         </li>
@@ -15,7 +15,7 @@ export default  {
                             <label for="to-field"><input type="number" id="to-field" min = "1"/ ></label>
                             <span>
                                 <select name="to-currency-name" id="to-currency-name" class="select-currency">
-                                    OPTION
+                                    #CHOICES
                                 </select>
                             </span>
                         </li>
