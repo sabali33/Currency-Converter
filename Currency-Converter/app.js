@@ -202,6 +202,8 @@ const controller = {
             contClass.openDatabase('c_rates').set(dataDB);
             
             return data;
+        }).catch( err => {
+            
         });
     },
     formTemplate(){
@@ -276,25 +278,24 @@ const controller = {
             convertedAmount = $('#to-field');
             id = `${fromCurrencyName}_${toCurrencyName}`;
             
-            
-            this.getRate(id).then( res => {
-                if(res){
-                    convertedAmount.attr( 'value', (res[id].val * amount) );
-                }
-            }).catch( () => {
-                this.openDatabase('c_rates').get().then( resp =>{
-                    let oldRate = resp.filter( rate => {
-                        if(rate.id == id){
-                            return rate;
-                        }
-                    });
-                    
-                    convertedAmount.attr( 'value', (oldRate[0].value.val * amount) );
-                    //
-                }).catch( () =>{
-                    alert('please check connection');
+            this.openDatabase('c_rates').get().then( resp =>{
+                let oldRate = resp.filter( rate => {
+                    if(rate.id == id){
+                        return rate;
+                    }
                 });
+                convertedAmount.attr( 'value', (oldRate[0].value.val * amount) );
+                //
+            }).catch( () =>{
+                this.getRate(id).then( res => {
+                    if(res){
+                        convertedAmount.attr( 'value', (res[id].val * amount) );
+                    }
+                }).catch(err => {
+                    console.log(`Network Error: ${err}`);
+                })
             });
+            
         })
     },
     chunk(list=''){
