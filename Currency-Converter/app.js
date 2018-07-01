@@ -7,18 +7,6 @@ const controller = {
     init(){
        
        this.startServiceWorker();
-       
-    //    this.openDatabase().get().then( data => {
-    //        if(!data.length){
-    //            this.getCurrencies().then( data =>{
-    //               this.openDatabase().set(data);
-    //            });
-               
-    //        }
-    //        //this.getCurrencies();
-    //    });
-       //this.getOptions().then(res=> console.log(res));
-       //this.loadForm()
        let contClass = this;
        
        
@@ -37,12 +25,14 @@ const controller = {
                let chunks = this.chunk(keys);
                chunks.forEach((chunk => {
                    this.getRate(chunk).then( newRates => {
-                       console.log(newRates);
-                        for ( let newRate of newRates ){
-                            this.openDatabase('c_rates').set({
-                                id: Object.keys(newRate)[0],
-                                value: Object.values(newRate)[0]
-                            });
+                       console.log();
+                        for ( let newRate of Object.values(newRates.results) ){
+                            let data = {
+                                id: newRate.id,
+                                value: newRate.val
+                            };
+                            
+                            this.openDatabase('c_rates').set(data);
                         }
                         
                     });
@@ -50,7 +40,7 @@ const controller = {
                
                
            })
-       }, 6000 * 60 );
+       }, 60 * 60 * 1000 );
     },
     startServiceWorker(){
          if (navigator.serviceWorker) {
@@ -325,4 +315,3 @@ const controller = {
 
 }
 controller.init();
-//export default controller.openDatabase();
