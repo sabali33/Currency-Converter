@@ -3,30 +3,27 @@ import form from './form';
 import $ from "jquery";
 var https = require('https');
 
-// require("jsdom").env("", function(err, window) {
-//     if (err) {
-//         console.error(err);
-//         return;
-//     }
- 
-//     var $ = require("jquery")(window);
-// });
 const controller = {
     init(){
        
        this.startServiceWorker();
-       //this.openDatabase()
-       //set_time_interval( this.getCurrencies, 60 * 60 * 24);
-      // this.openDatabase().set();
-       //this.getCurrencies();
        
+       this.openDatabase().get().then( data => {
+           if(!data.length){
+               this.getCurrencies();
+               
+           }
+       });
        //this.getOptions().then(res=> console.log(res));
        this.loadForm()
        let contClass = this;
 
-       //console.log(this.getRate('USD_PHP'));
-      // let contClass = this;
        
+       window.addEventListener('load', (e)=>{
+        
+        this.loadForm();
+        
+       });
     },
     startServiceWorker(){
          if (navigator.serviceWorker) {
@@ -35,11 +32,7 @@ const controller = {
             if (!navigator.serviceWorker.controller) {
                 return;
             }
-             window.addEventListener('load', (e)=>{
-                
-                contClass.loadForm();
-                
-            } );
+             
             if (reg.waiting) {
                 console.log('waiting');
                 return;
@@ -105,8 +98,10 @@ const controller = {
             set(values){
                 return cdPromise.then(db => {
                 const tx = db.transaction('c_rates', 'readwrite');
-                
-                tx.objectStore('c_rates').put(values);
+                if(values){
+                    tx.objectStore('c_rates').put(values);
+                }
+              
                    
                 return tx.complete;
                 });
@@ -211,6 +206,7 @@ const controller = {
     },
     formTemplate(){
         return this.getOptions().then(options=>{
+            
             return form.data.replace(/OPTION/g, options );
         })
        
