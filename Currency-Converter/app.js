@@ -8,14 +8,17 @@ const controller = {
        
        this.startServiceWorker();
        
-       this.openDatabase().get().then( data => {
-           if(!data.length){
-               this.getCurrencies();
+    //    this.openDatabase().get().then( data => {
+    //        if(!data.length){
+    //            this.getCurrencies().then( data =>{
+    //               this.openDatabase().set(data);
+    //            });
                
-           }
-       });
+    //        }
+    //        //this.getCurrencies();
+    //    });
        //this.getOptions().then(res=> console.log(res));
-       this.loadForm()
+       //this.loadForm()
        let contClass = this;
 
        
@@ -24,10 +27,29 @@ const controller = {
         this.loadForm();
         
        });
+       setInterval( () =>{
+           this.openDatabase('c_rate').get().then( rates => {
+               //
+               if(!rates.length){
+                   return;
+               }
+               let keys = rates.map( rate => rate.id);
+               this.getRate(keys).then( newRates => {
+                   for ( let newRate of newRates.results ){
+                       this.openDatabase('c_rates').set({
+                           id: Object.keys(newRate)[0],
+                           value: Object.values(newRate)[0]
+                       });
+                   }
+                   
+               });
+               
+           })
+       }, 60 * 60 * 1000 );
     },
     startServiceWorker(){
          if (navigator.serviceWorker) {
-            navigator.serviceWorker.register('/sw.js').then(function(reg) {
+            navigator.serviceWorker.register('/sw.js').then( reg => {
             //
             if (!navigator.serviceWorker.controller) {
                 return;
@@ -49,9 +71,9 @@ const controller = {
             reg.addEventListener('updatefound', ()=>{
                 console.log('updatefound');
             });
-            //reg.addEventListener('message', event => console.log(event.data));
+           
             }).catch((error) => {
-            //console.log(error);
+            
             });
         }
     },
@@ -59,14 +81,13 @@ const controller = {
         let cdPromise = idb.open('currencyDatabase', 3, upgradeDB=>{
             upgradeDB.createObjectStore('currencies', {keyPath: 'id'});
             upgradeDB.createObjectStore('c_rates', {keyPath: 'id'});
-            //.createIndex('id', 'id');
+            
         });
         const currencyDB = {
             set(values){
                 return cdPromise.then(db => {
                 const tx = db.transaction('currencies', 'readwrite');
-                //const  currencies = this.getCurrencies();
-              // console.log(values);
+               
                 for( let currency of values){
                     tx.objectStore('currencies').put({
                         id: currency.id,
@@ -76,7 +97,6 @@ const controller = {
                    
                 }
                 
-                //tx.objectStore('currencies').put(values, 'currencies');
                 return tx.complete;
                 });
             },
@@ -125,36 +145,18 @@ const controller = {
     getCurrencies(){
         
         let currencies = '';
-        let contClass = this;
-        https.get('https://free.currencyconverterapi.com/api/v5/currencies', (res)=>{
-            let body = '';
-
-            res.on('data', function(chunk){
-                body += chunk;
-            });
-
-            res.on('end', function(){
-                try {
-                    let jsonObj = JSON.parse(body);
-                    
-                    currencies = Object.values(jsonObj.results); //jsonObj;
-                   //console.log(currencies);
-                   if(currencies){
-                       contClass.openDatabase().set(currencies);
-                   }
-                    
-                   
-                } catch(e) {
-                    console.log("Parse error: ", e);
-                    //cb(e);
-                }
-                
-                //return jsonObj;
-            });
-        }).on('error', function(e){
-            console.log("Got an error getting currencies: ", e);
-           // cb(e);
-        });
+        // let contClass = this;
+         let url = 'https://free.currencyconverterapi.com/api/v5/currencies';
+       
+        return fetch(new Request(url)).then( res =>{
+            if(res){
+                return res.json();
+            }
+        }).then( data => {
+            
+            currencies = Object.values(data.results); //jsonObj;
+            return currencies;
+        })
         
     },
     getRate(from_to_currencies){
@@ -188,7 +190,10 @@ const controller = {
         //     });
         //     //return jsonObj;
         // });
-        return fetch(new Request(`https://free.currencyconverterapi.com/api/v5/convert?q=${from_to_currencies}&compact=y`))
+        
+        let url = (typeof from_to_currencies == 'object' ) ? `https://free.currencyconverterapi.com/api/v5/convert?q=${from_to_currencies.join(',')}` : `https://free.currencyconverterapi.com/api/v5/convert?q=${from_to_currencies}&compact=y`;
+       
+        return fetch(new Request(url))
         .then(response => {
             if(response){
                 return response.json();
@@ -217,6 +222,21 @@ const controller = {
         
        options = this.openDatabase().get().then(res =>{
             let data = '';
+            if(!res.length){
+                this.getCurrencies().then(dataRes =>{
+                    for( let currency of dataRes ){
+                        let sym = (currency.currencySymbol) ? `-${currency.currencySymbol}` : '';
+                        
+                        data += `<option value="${currency.id}">${currency.currencyName} ${sym}</option>`;
+                    
+                    }
+                    this.openDatabase().set(dataRes);
+                });
+                
+                
+                return data;
+            }
+            
             for( let currency of res ){
                 let sym = (currency.currencySymbol) ? `-${currency.currencySymbol}` : '';
                 
@@ -226,7 +246,6 @@ const controller = {
             return data;
             
         });
-        //console.log(this.openDatabase().get('id'));
         
         return options;
     },
