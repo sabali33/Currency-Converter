@@ -20,7 +20,7 @@ const controller = {
        //this.getOptions().then(res=> console.log(res));
        //this.loadForm()
        let contClass = this;
-
+       
        
        window.addEventListener('load', (e)=>{
         
@@ -34,18 +34,23 @@ const controller = {
                    return;
                }
                let keys = rates.map( rate => rate.id);
-               this.getRate(keys).then( newRates => {
-                   for ( let newRate of newRates.results ){
-                       this.openDatabase('c_rates').set({
-                           id: Object.keys(newRate)[0],
-                           value: Object.values(newRate)[0]
-                       });
-                   }
-                   
-               });
+               let chunks = this.chunk(keys);
+               chunks.forEach((chunk => {
+                   this.getRate(chunk).then( newRates => {
+                       console.log(newRates);
+                        for ( let newRate of newRates ){
+                            this.openDatabase('c_rates').set({
+                                id: Object.keys(newRate)[0],
+                                value: Object.values(newRate)[0]
+                            });
+                        }
+                        
+                    });
+               }))
+               
                
            })
-       }, 60 * 60 * 1000 );
+       }, 6000 * 60 );
     },
     startServiceWorker(){
          if (navigator.serviceWorker) {
@@ -190,8 +195,8 @@ const controller = {
         //     });
         //     //return jsonObj;
         // });
-        
-        let url = (typeof from_to_currencies == 'object' ) ? `https://free.currencyconverterapi.com/api/v5/convert?q=${from_to_currencies.join(',')}` : `https://free.currencyconverterapi.com/api/v5/convert?q=${from_to_currencies}&compact=y`;
+        //console.log(typeof from_to_currencies);
+        let url = (from_to_currencies.includes(',') ) ? `https://free.currencyconverterapi.com/api/v5/convert?q=${from_to_currencies}` : `https://free.currencyconverterapi.com/api/v5/convert?q=${from_to_currencies}&compact=y`;
        
         return fetch(new Request(url))
         .then(response => {
@@ -299,6 +304,23 @@ const controller = {
                 });
             });
         })
+    },
+    chunk(list=''){
+        let chunkList = [];
+        let firstPair = '';
+        list.forEach((val, key)=>{
+            if(!firstPair){
+                firstPair = val;
+            }else{
+                val = (val) ? `${firstPair},${val}` : firstPair;
+                chunkList.push(val);
+                firstPair = '';
+            }
+
+            
+        });
+       
+       return chunkList;
     }
 
 }
